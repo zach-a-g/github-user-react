@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+img {
+  width: 20%
+}
+
+body {
+  background-color: dimgrey;
+  color: aliceblue;
+}
+
+input {
+  margin: 10px;
+}

@@ -1,18 +1,23 @@
-import UserCard from './UserCard'
+import UserCard from './UserCard';
+import { Link } from "react-router-dom";
 
-function UserCardList (props) {
+const UserCardList = (props) => {
+    const userArray = props.users
     return (
-    <>
-    {props.user.map(user => {
-        return(
-        <UserCard 
-        key={user.id}
-        user={user}
-        />
-        )
-    })}
-    
-    </>
+        <>
+        {userArray.map(user => {
+            return (
+                <>
+                    <div key={user.id}>
+                        <Link to={`user/${user.login}`}>
+                            <UserCard user={user} />
+                        </Link>
+                    </div>
+                </>
+            )
+        })}
+           
+        </>
     )
 }
 

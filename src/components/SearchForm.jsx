@@ -1,54 +1,80 @@
-import React, {Component} from 'react';
-import UserCardList from './UserCardList'
-
-class SearchForm extends Component {
+import React from 'react';
+import UserCardList from './UserCardList';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import UserProfile from './UserProfile';
+class SearchForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             userName: '',
-            users: []
+            users: [],
+            lookedUp: []
         }
     }
 
-    _fetchUser = async (user) => {
-        const response = await fetch(
-            `https://api.github.com/users/${user}`
-        ).then(response => response.json());
+    _handleChange = (field, value) => {
+        //setState username = input value
         this.setState({
-            users: [...this.state.users, response]
-        })
-        console.log('Response from API search: ', response)
+            [field]: value
+        });
     }
 
-    _handleChange(field, val) {
-        this.setState({
-            [field]: val
-        })
-    }
-
-    _handleSubmit = (event) => {
-        event.preventDefault();
-        this._fetchUser(this.state.userName);
+    _handleSubmit = async (e) => {
+        e.preventDefault();
+        //get username value
+        const userLookup = this.state.userName
+        if (this.state.lookedUp.includes(userLookup)) {
+            return console.log('duplicate');
+        } else {
+            //fetch Github API
+            const url = `https://api.github.com/users/${userLookup}`;
+            const response = await fetch(url)
+                .then(response => response.json());
+            //response = single user
+            console.log(response)
+            //add response to array [...this.state.users, newUserData]
+            this.setState({
+                users: [...this.state.users, response],
+                userName: '',
+                lookedUp: [...this.state.lookedUp, userLookup]
+            })
+        }  
     }
 
     render() {
-        return(
-            <>
-            <h1>Search Results</h1>
-            <form onSubmit={this._handleSubmit}>
-                <label>Search For A User 
-                    <input type="text" value={this.state.userName} onChange={(event) => {
-                        this._handleChange('userName', event.target.value)
-                    }}></input>
-                    <button type="submit">Search</button>
-                </label>
-            </form>
-            <div className="allUsers">
-            <UserCardList user={this.state.users}/>
-            </div>
-            </>
+        return (
+            <Router >
+                <Switch >
+                    <Route exact path='/'>
+                        <h1>GITHUB USER SEARCH</h1>
+                        <form onSubmit={this._handleSubmit}>
+                            <label>Search for a User
+                                <input
+                                    placeholder="Username Here"
+                                    type="text"
+                                    value={this.state.userName}
+                                    onChange={(e) => {
+                                        this._handleChange('userName', e.target.value)
+                                    }}
+                                />
+                            </label>
+                            <br />
+                            <input type="submit" value="Add card" />
+                        </form>
+
+                        {this.state.users.length > 0 ? 
+                            <UserCardList 
+                                users={this.state.users}
+                            /> : 'No Users Found Yet'}
+                    </Route>
+                    <Route path='/user/:username' >
+                        <UserProfile users={this.state.users}/>
+                    </Route>
+                </Switch>
+            </Router>
         )
     }
 }
+
 
 export default SearchForm;
